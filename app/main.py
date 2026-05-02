@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.llm.client import stream_generate_sse
+from core.pipeline import initialize, run_pipeline
 
 app = FastAPI()
 
@@ -16,3 +17,12 @@ def generate_stream(request: PromptRequest):
         generator,
         media_type="text/event-stream"
     )
+@app.on_event("startup")
+def startup():
+    initialize()   # load schema once
+
+
+@app.get("/query")
+def query(q: str):
+    result = run_pipeline(q)
+    return result

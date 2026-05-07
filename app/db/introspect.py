@@ -68,9 +68,9 @@ def get_primary_keys(conn, table_name):
         AND tc.constraint_type = 'PRIMARY KEY'
     """, (table_name,))
 
-    pk = [row[0] for row in cursor.fetchall()]
+    kpk = [row[0] for row in cursor.fetchall()]
     cursor.close()
-    return pk
+    return kpk
 
 
 

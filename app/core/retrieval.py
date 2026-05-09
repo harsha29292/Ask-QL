@@ -52,25 +52,36 @@ from app.core.embeddings import (
 def semantic_table_search(
     query,
     table_embeddings,
-    top_k=2
+    top_k=3
 ):
     query_embedding = get_embedding(query)
+
+    query_lower = query.lower()
 
     scores = []
 
     for item in table_embeddings:
-        score = cosine_similarity(
+        semantic_score = cosine_similarity(
             query_embedding,
             item["embedding"]
         )
 
+        keyword_bonus = 0
+
+        if item["table"] in query_lower:
+            keyword_bonus += 0.15
+
+        final_score = semantic_score + keyword_bonus
+
         scores.append({
             "table": item["table"],
-            "score": float(score)
+            "semantic_score": float(semantic_score),
+            "keyword_bonus": keyword_bonus,
+            "final_score": float(final_score)
         })
 
     scores.sort(
-        key=lambda x: x["score"],
+        key=lambda x: x["final_score"],
         reverse=True
     )
 

@@ -1,5 +1,5 @@
 from app.db.introspect import extract_schema
-from app.core.graph import build_schema_graph, find_join_path
+from app.core.graph import build_schema_graph, connect_tables, find_join_path
 from app.core.retrieval import extract_relevant_tables
 from app.core.embeddings import get_embedding
 from app.core.retrieval import (
@@ -50,12 +50,10 @@ def run_pipeline(query: str):
 
     start, end = tables[0], tables[1]
 
-    path = find_join_path(
-        _graph,
-        start,
-        end
-    )
-
+    path = connect_tables(
+    _graph,
+    tables
+)
     return {
         "tables": tables,
         "scores": results,

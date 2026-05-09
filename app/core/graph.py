@@ -64,3 +64,41 @@ def serialize_graph(graph):
         }
         for table, data in graph.items()
     }
+
+def connect_tables(graph, tables):
+    if not tables:
+        return []
+
+    # start with first table
+    full_path = [tables[0]]
+
+    covered = set(full_path)
+
+    for target in tables[1:]:
+
+        # try connecting from ANY covered table
+        best_path = None
+
+        for source in covered:
+
+            path = find_join_path(
+                graph,
+                source,
+                target
+            )
+
+            if path:
+                best_path = path
+                break
+
+        if not best_path:
+            continue
+
+        # merge path without duplicates
+        for node in best_path:
+            if node not in full_path:
+                full_path.append(node)
+
+        covered.update(best_path)
+
+    return full_path

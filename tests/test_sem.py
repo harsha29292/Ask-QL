@@ -26,9 +26,12 @@ for query in queries:
     print("\nSIMILARITY SCORES:")
     for item in result["scores"]:
         print(
-            f"{item['table']} -> "
-            f"{round(item['score'], 4)}"
-        )
+    f"{item['table']} | "
+    f"semantic={round(item['semantic_score'], 4)} | "
+    f"bonus={round(item['keyword_bonus'], 4)} | "
+    f"final={round(item['final_score'], 4)}"
+)
+        
 
     print("\nJOIN PATH:")
     print(result["path"])

@@ -36,7 +36,8 @@ def build_schema_graph(schema):
 
 def find_join_path(graph, start, target):
     queue = deque([(start, [start])])
-    visited = set()
+
+    visited = {start}
 
     while queue:
         current, path = queue.popleft()
@@ -44,13 +45,17 @@ def find_join_path(graph, start, target):
         if current == target:
             return path
 
-        visited.add(current)
-
         for rel in graph[current]["relations"]:
             neighbor = rel["to"]
 
-            if neighbor not in visited:
-                queue.append((neighbor, path + [neighbor]))
+            if neighbor in visited:
+                continue
+
+            visited.add(neighbor)
+
+            queue.append(
+                (neighbor, path + [neighbor])
+            )
 
     return None
 
@@ -72,12 +77,11 @@ def connect_tables(graph, tables):
     # start with first table
     full_path = [tables[0]]
 
-    covered = set(full_path)
+    covered = list(full_path)
 
     for target in tables[1:]:
-
-        # try connecting from ANY covered table
         best_path = None
+        best_cost = float("inf")
 
         for source in covered:
 
@@ -85,11 +89,19 @@ def connect_tables(graph, tables):
                 graph,
                 source,
                 target
-            )
+                )
 
-            if path:
+            if not path:
+                continue
+
+            cost = len(path)
+
+            if cost < best_cost:
+                best_cost = cost
                 best_path = path
-                break
+
+        # try connecting from ANY covered table
+        
 
         if not best_path:
             continue
@@ -99,6 +111,9 @@ def connect_tables(graph, tables):
             if node not in full_path:
                 full_path.append(node)
 
-        covered.update(best_path)
+            if node not in covered:
+                covered.append(node)
+
+        
 
     return full_path

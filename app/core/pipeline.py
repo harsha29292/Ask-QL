@@ -6,6 +6,7 @@ from app.core.retrieval import (
     build_table_documents,
     semantic_table_search
 )
+from app.core.intent_parser import parse_intent
 
 # cache schema + graph (important for performance)
 _schema = None
@@ -54,8 +55,10 @@ def run_pipeline(query: str):
     _graph,
     tables
 )
+    intent = parse_intent(query)
     return {
         "tables": tables,
         "scores": results,
-        "path": path
+        "path": path,
+        "intent": intent
     }

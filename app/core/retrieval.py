@@ -45,7 +45,8 @@ def build_table_documents(schema):
 
 from app.core.embeddings import (
     get_embedding,
-    cosine_similarity
+    cosine_similarity,
+    get_intent_bonus
 )
 
 
@@ -71,12 +72,15 @@ def semantic_table_search(
         if item["table"] in query_lower:
             keyword_bonus += 0.15
 
-        final_score = semantic_score + keyword_bonus
+        intent_bonus = get_intent_bonus(query, item["table"])
+
+        final_score = semantic_score + keyword_bonus + intent_bonus
 
         scores.append({
             "table": item["table"],
             "semantic_score": float(semantic_score),
             "keyword_bonus": keyword_bonus,
+            "intent_bonus": intent_bonus,
             "final_score": float(final_score)
         })
 
@@ -84,5 +88,7 @@ def semantic_table_search(
         key=lambda x: x["final_score"],
         reverse=True
     )
+    
+
 
     return scores[:top_k]

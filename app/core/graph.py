@@ -83,7 +83,7 @@ def connect_tables(graph, tables):
         best_path = None
         best_cost = float("inf")
 
-        for source in covered:
+        for source in reversed(full_path):
 
             path = find_join_path(
                 graph,
@@ -95,11 +95,18 @@ def connect_tables(graph, tables):
                 continue
 
             cost = len(path)
+            print(
+                f"\nSOURCE={source} "
+                f"TARGET={target} "
+                f"PATH={path} "
+                f"COST={cost}"
+                                )
+            
 
             if cost < best_cost:
                 best_cost = cost
                 best_path = path
-
+        print(f"BEST PATH CHOSEN: {best_path}")
         # try connecting from ANY covered table
         
 
@@ -112,28 +119,29 @@ def connect_tables(graph, tables):
         for i, node in enumerate(best_path):
             if node in full_path:
                 overlap_index = i
+                break
 
-# append ONLY unseen tail
-        tail = best_path[overlap_index + 1:]
 
+        if overlap_index is not None:
+            tail=best_path
+        else:
+            tail=best_path[overlap_index+1:]
         for node in tail:
-            full_path.append(node)
-
+            if node not in full_path:
+                full_path.append(node)
             if node not in covered:
-                covered.append(node)
+                covered.append(node)            
 
         
 
     return full_path
-def validate_path(graph, path):
-    for i in range(len(path) - 1):
-        current = path[i]
-        nxt = path[i + 1]
+def validate_edges(graph, edges):
+    for left, right in edges:
 
         valid = False
 
-        for rel in graph[current]["relations"]:
-            if rel["to"] == nxt:
+        for rel in graph[left]["relations"]:
+            if rel["to"] == right:
                 valid = True
                 break
 
@@ -141,3 +149,55 @@ def validate_path(graph, path):
             return False
 
     return True
+
+    return True
+def connect_tables_as_edges(graph, tables):
+    if not tables:
+        return []
+
+    connected = {tables[0]}
+
+    edges = []
+
+    remaining = set(tables[1:])
+
+    while remaining:
+        best_path = None
+        best_cost = float("inf")
+
+        for source in connected:
+            for target in remaining:
+
+                path = find_join_path(
+                    graph,
+                    source,
+                    target
+                )
+
+                if not path:
+                    continue
+
+                cost = len(path)
+
+                if cost < best_cost:
+                    best_cost = cost
+                    best_path = path
+
+        if not best_path:
+            break
+
+        # convert path into edges
+        for i in range(len(best_path) - 1):
+            left = best_path[i]
+            right = best_path[i + 1]
+
+            edge = (left, right)
+
+            if edge not in edges:
+                edges.append(edge)
+
+        connected.update(best_path)
+
+        remaining -= connected
+
+    return edges

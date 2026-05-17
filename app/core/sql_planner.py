@@ -1,16 +1,19 @@
-def build_join_clause(path, graph):
-    if not path or len(path) < 2:
+def build_join_clause(edges, graph):
+    if not edges:
         return ""
 
-    sql = f"FROM {path[0]}\n"
+    used_tables = set()
 
-    for i in range(len(path) - 1):
-        left = path[i]
-        right = path[i + 1]
+    first_left, _ = edges[0]
+
+    sql = f"FROM {first_left}\n"
+
+    used_tables.add(first_left)
+
+    for left, right in edges:
 
         relation = None
 
-        # find matching edge
         for rel in graph[left]["relations"]:
             if rel["to"] == right:
                 relation = rel
@@ -22,10 +25,13 @@ def build_join_clause(path, graph):
         left_col = relation["from_column"]
         right_col = relation["to_column"]
 
-        sql += (
-            f"JOIN {right}\n"
-            f"ON {left}.{left_col} = "
-            f"{right}.{right_col}\n"
-        )
+        if right not in used_tables:
+            sql += (
+                f"JOIN {right}\n"
+                f"ON {left}.{left_col} = "
+                f"{right}.{right_col}\n"
+            )
+
+            used_tables.add(right)
 
     return sql

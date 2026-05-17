@@ -1,4 +1,12 @@
-from app.core.pipeline import initialize, run_pipeline
+
+from app.core import pipeline
+from app.core.pipeline import (
+    initialize,
+    run_pipeline
+)
+
+
+from app.core.graph import validate_edges
 
 initialize()
 
@@ -15,7 +23,12 @@ for query in queries:
     result = run_pipeline(query)
 
     print("\nPATH:")
-    print(result["path"])
+    print(result["join_edges"])
 
     print("\nJOIN CLAUSE:")
     print(result["join_clause"])
+    print("\nVALID PATH:")
+    print(validate_edges(
+        pipeline._graph,
+        result["join_edges"]
+                        ))

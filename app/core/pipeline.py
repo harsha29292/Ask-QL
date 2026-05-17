@@ -1,5 +1,5 @@
 from app.db.introspect import extract_schema
-from app.core.graph import build_schema_graph, connect_tables, find_join_path
+from app.core.graph import build_schema_graph, connect_tables, find_join_path,connect_tables_as_edges
 from app.core.retrieval import extract_relevant_tables
 from app.core.embeddings import get_embedding
 from app.core.retrieval import (
@@ -8,6 +8,7 @@ from app.core.retrieval import (
 )
 from app.core.intent_parser import parse_intent
 from app.core.sql_planner import build_join_clause
+
 
 # cache schema + graph (important for performance)
 _schema = None
@@ -47,21 +48,22 @@ def run_pipeline(query: str):
         return {
             "tables": tables,
             "scores": results,
-            "path": None
+            "join_edges": None
         }
 
     start, end = tables[0], tables[1]
 
-    path = connect_tables(
+    join_edges = connect_tables_as_edges(
     _graph,
     tables
 )
-    join_clause = build_join_clause(path, _graph)
+
+    join_clause = build_join_clause(join_edges, _graph)
     intent = parse_intent(query)
     return {
         "tables": tables,
         "scores": results,
-        "path": path,
+        "join_edges": join_edges,
         "intent": intent,
         "join_clause": join_clause
     }

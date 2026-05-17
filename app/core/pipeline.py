@@ -7,6 +7,7 @@ from app.core.retrieval import (
     semantic_table_search
 )
 from app.core.intent_parser import parse_intent
+from app.core.sql_planner import build_join_clause
 
 # cache schema + graph (important for performance)
 _schema = None
@@ -55,10 +56,12 @@ def run_pipeline(query: str):
     _graph,
     tables
 )
+    join_clause = build_join_clause(path, _graph)
     intent = parse_intent(query)
     return {
         "tables": tables,
         "scores": results,
         "path": path,
-        "intent": intent
+        "intent": intent,
+        "join_clause": join_clause
     }

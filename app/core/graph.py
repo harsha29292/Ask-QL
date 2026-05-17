@@ -107,9 +107,17 @@ def connect_tables(graph, tables):
             continue
 
         # merge path without duplicates
-        for node in best_path:
-            if node not in full_path:
-                full_path.append(node)
+        overlap_index = None
+
+        for i, node in enumerate(best_path):
+            if node in full_path:
+                overlap_index = i
+
+# append ONLY unseen tail
+        tail = best_path[overlap_index + 1:]
+
+        for node in tail:
+            full_path.append(node)
 
             if node not in covered:
                 covered.append(node)
@@ -117,3 +125,19 @@ def connect_tables(graph, tables):
         
 
     return full_path
+def validate_path(graph, path):
+    for i in range(len(path) - 1):
+        current = path[i]
+        nxt = path[i + 1]
+
+        valid = False
+
+        for rel in graph[current]["relations"]:
+            if rel["to"] == nxt:
+                valid = True
+                break
+
+        if not valid:
+            return False
+
+    return True

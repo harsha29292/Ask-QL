@@ -43,6 +43,12 @@ def parse_intent(query: str):
         "least"
     ]):
         intent["ranking"] = "asc"
+    # implicit aggregation inference
+
+    if (
+        intent["ranking"] is not None
+        and intent["aggregation"] is None):
+        intent["aggregation"] = "count"    
 
     # group by hints
     if "products" in query or "product" in query:

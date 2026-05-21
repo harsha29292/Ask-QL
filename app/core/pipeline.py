@@ -8,8 +8,13 @@ from app.core.retrieval import (
 )
 from app.core.intent_parser import parse_intent
 from app.core.sql_planner import build_join_clause
-
-
+from app.core.select_planner import (
+    build_select_clause
+)
+from app.db.execute import execute_sql
+from app.core.answer_generator import (
+    generate_answer
+)
 # cache schema + graph (important for performance)
 _schema = None
 _graph = None
@@ -58,12 +63,42 @@ def run_pipeline(query: str):
     tables
 )
 
-    join_clause = build_join_clause(join_edges, _graph)
+  
+
+
     intent = parse_intent(query)
+    join_clause = build_join_clause(join_edges, _graph)
+    select_plan = build_select_clause(
+    intent,
+    tables)
+
+    sql = (
+    select_plan["select_clause"]
+    + "\n"
+    + join_clause
+                )
+    if select_plan["group_by"]:
+        sql += (
+            "\nGROUP BY "
+            + select_plan["group_by"]
+
+                )
+        
+    if select_plan["order_by"]:
+        sql += (
+            "\nORDER BY "
+            + select_plan["order_by"]
+                        )  
+    execution = execute_sql(sql)    
+    
+     
     return {
         "tables": tables,
         "scores": results,
         "join_edges": join_edges,
         "intent": intent,
-        "join_clause": join_clause
+        "join_clause": join_clause,
+        "select_plan": select_plan,
+        "sql": sql,
+        "execution": execution
     }

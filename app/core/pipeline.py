@@ -89,8 +89,12 @@ def run_pipeline(query: str):
             "\nORDER BY "
             + select_plan["order_by"]
                         )  
-    execution = execute_sql(sql)    
-    
+    execution = execute_sql(sql)
+
+    answer = generate_answer(
+    query,
+    execution)    
+
      
     return {
         "tables": tables,
@@ -100,5 +104,6 @@ def run_pipeline(query: str):
         "join_clause": join_clause,
         "select_plan": select_plan,
         "sql": sql,
-        "execution": execution
+        "execution": execution,
+        "answer": answer
     }

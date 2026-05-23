@@ -1,3 +1,5 @@
+from warnings import filters
+
 from app.db.introspect import extract_schema
 from app.core.graph import build_schema_graph, connect_tables, find_join_path,connect_tables_as_edges
 from app.core.retrieval import extract_relevant_tables
@@ -14,6 +16,10 @@ from app.core.select_planner import (
 from app.db.execute import execute_sql
 from app.core.answer_generator import (
     generate_answer
+)
+from app.core.filter_planner import (
+    extract_filters,
+    build_where_clause
 )
 # cache schema + graph (important for performance)
 _schema = None
@@ -43,30 +49,55 @@ def initialize():
 
 def run_pipeline(query: str):
     results = semantic_table_search(
-        query,
-        _table_embeddings
-    )
+    query,
+    _table_embeddings
+)
 
     tables = [r["table"] for r in results]
 
-    if len(tables) < 2:
-        return {
-            "tables": tables,
-            "scores": results,
-            "join_edges": None
-        }
+    intent = parse_intent(query)
 
-    start, end = tables[0], tables[1]
+    filters = extract_filters(query)
+
+    filter_tables = []
+
+    for f in filters:
+        table = f.get("table")
+
+        if table and table not in filter_tables:
+            filter_tables.append(table)
+
+    for table in filter_tables:
+        if table not in tables:
+            tables.append(table)
 
     join_edges = connect_tables_as_edges(
-    _graph,
-    tables
+        _graph,
+        tables
 )
 
   
 
 
     intent = parse_intent(query)
+    filters = extract_filters(query)
+    filter_tables = []
+
+    for f in filters:
+        table = f.get("table")
+        if not table:
+            continue
+
+        if table not in filter_tables:
+            filter_tables.append(table)
+    tables = [r["table"] for r in results]
+
+    for table in filter_tables:
+
+        if table not in tables:
+            tables.append(table)            
+
+    where_clause = build_where_clause(filters)
     join_clause = build_join_clause(join_edges, _graph)
     select_plan = build_select_clause(
     intent,
@@ -77,6 +108,8 @@ def run_pipeline(query: str):
     + "\n"
     + join_clause
                 )
+    if where_clause:
+        sql += "\n" + where_clause
     if select_plan["group_by"]:
         sql += (
             "\nGROUP BY "
@@ -105,5 +138,6 @@ def run_pipeline(query: str):
         "select_plan": select_plan,
         "sql": sql,
         "execution": execution,
-        "answer": answer
-    }
+        "answer": answer,
+        "filters": filters
+        }

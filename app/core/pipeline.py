@@ -25,6 +25,10 @@ from app.core.filter_planner import (
 from app.core.rewriter import (
     rewrite_query
 )
+
+from app.core.embeddings_cache import (
+    get_or_create_embedding
+)
 # cache schema + graph (important for performance)
 _schema = None
 _graph = None
@@ -42,13 +46,15 @@ def initialize():
     _table_embeddings = []
 
     for doc in docs:
-        embedding = get_embedding(doc["text"])
+
+        embedding = get_or_create_embedding(
+            doc
+        )
 
         _table_embeddings.append({
-            "table": doc["table"],
-            "embedding": embedding
+        "table": doc["table"],
+        "embedding": embedding
         })
-
 
 
 def run_pipeline(query: str):

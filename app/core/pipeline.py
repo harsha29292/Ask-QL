@@ -21,6 +21,10 @@ from app.core.filter_planner import (
     extract_filters,
     build_where_clause
 )
+
+from app.core.rewriter import (
+    rewrite_query
+)
 # cache schema + graph (important for performance)
 _schema = None
 _graph = None
@@ -48,8 +52,9 @@ def initialize():
 
 
 def run_pipeline(query: str):
+    rewritten_query = rewrite_query(query)
     results = semantic_table_search(
-    query,
+    rewritten_query,
     _table_embeddings
 )
 
@@ -139,5 +144,6 @@ def run_pipeline(query: str):
         "sql": sql,
         "execution": execution,
         "answer": answer,
-        "filters": filters
+        "filters": filters,
+        "rewritten_query": rewritten_query
         }

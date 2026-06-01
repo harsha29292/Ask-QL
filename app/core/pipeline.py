@@ -1,5 +1,6 @@
 from warnings import filters
 
+from app.core.reranker import rerank_tables
 from app.db.introspect import extract_schema
 from app.core.graph import build_schema_graph, connect_tables, find_join_path,connect_tables_as_edges
 from app.core.retrieval import extract_relevant_tables
@@ -33,6 +34,11 @@ from app.core.embeddings_cache import (
 from app.core.sql_validator import (
     validate_sql
 )
+
+
+from app.core.reranker import (
+    rerank_tables
+)
 # cache schema + graph (important for performance)
 _schema = None
 _graph = None
@@ -63,16 +69,33 @@ def initialize():
 
 def run_pipeline(query: str):
     rewritten_query = rewrite_query(query)
+
     results = semantic_table_search(
     rewritten_query,
     _table_embeddings
-)
-
-    tables = [r["table"] for r in results]
+    )
+    print("\nRAW RESULTS")
+    print("COUNT:", len(results))
+    print(
+        [r["table"] for r in results]
+            )
 
     intent = parse_intent(query)
 
     filters = extract_filters(query)
+
+# NEW
+    results = rerank_tables(
+        query,
+        results,
+        intent,
+        filters
+            )
+    TOP_K=3
+    tables = [r["table"] for r in results[:TOP_K]]
+    print("FINAL TABLES:")
+    print(tables)
+
 
     filter_tables = []
 
@@ -89,28 +112,13 @@ def run_pipeline(query: str):
     join_edges = connect_tables_as_edges(
         _graph,
         tables
-)
+                )
+
 
   
 
 
-    intent = parse_intent(query)
-    filters = extract_filters(query)
-    filter_tables = []
-
-    for f in filters:
-        table = f.get("table")
-        if not table:
-            continue
-
-        if table not in filter_tables:
-            filter_tables.append(table)
-    tables = [r["table"] for r in results]
-
-    for table in filter_tables:
-
-        if table not in tables:
-            tables.append(table)            
+               
 
     where_clause = build_where_clause(filters)
     join_clause = build_join_clause(join_edges, _graph)

@@ -53,7 +53,7 @@ from app.core.embeddings import (
 def semantic_table_search(
     query,
     table_embeddings,
-    top_k=3
+    top_k=5
 ):
     query_embedding = get_embedding(query)
 

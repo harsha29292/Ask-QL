@@ -29,6 +29,10 @@ from app.core.rewriter import (
 from app.core.embeddings_cache import (
     get_or_create_embedding
 )
+
+from app.core.sql_validator import (
+    validate_sql
+)
 # cache schema + graph (important for performance)
 _schema = None
 _graph = None
@@ -132,12 +136,30 @@ def run_pipeline(query: str):
         sql += (
             "\nORDER BY "
             + select_plan["order_by"]
-                        )  
-    execution = execute_sql(sql)
+                        )
+    validation = validate_sql(
+    sql,
+    _schema,
+    join_edges,
+    _graph)
+      
+    
+    if validation["valid"]:
+
+        execution = execute_sql(sql)
+
+    else:
+
+        execution = {
+            "success": False,
+            "errors": validation["errors"]
+                    }
 
     answer = generate_answer(
     query,
-    execution)    
+    execution)
+    
+       
 
      
     return {
@@ -151,5 +173,6 @@ def run_pipeline(query: str):
         "execution": execution,
         "answer": answer,
         "filters": filters,
-        "rewritten_query": rewritten_query
+        "rewritten_query": rewritten_query,
+        "validation": validation
         }

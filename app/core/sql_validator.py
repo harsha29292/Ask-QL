@@ -58,7 +58,7 @@ def validate_columns(sql, schema_lookup):
     return errors
 
 
-def validate_sql(sql, schema):
+def validate_sql(sql, schema,join_edges=None, graph=None):
 
     schema_lookup = build_schema_lookup(
         schema
@@ -66,6 +66,7 @@ def validate_sql(sql, schema):
 
     errors = []
 
+    
     errors.extend(
         validate_tables(
             sql,
@@ -79,8 +80,36 @@ def validate_sql(sql, schema):
             schema_lookup
         )
     )
+    if join_edges and graph:
+        errors.extend(
+            validate_join_edges(
+                join_edges,
+                graph
+            )
+        )
 
     return {
         "valid": len(errors) == 0,
         "errors": errors
     }
+def validate_join_edges(join_edges, graph):
+
+    errors = []
+
+    for source, target in join_edges:
+
+        valid = False
+
+        for rel in graph[source]["relations"]:
+
+            if rel["to"] == target:
+                valid = True
+                break
+
+        if not valid:
+
+            errors.append(
+                f"Invalid join: {source} -> {target}"
+            )
+
+    return errors    

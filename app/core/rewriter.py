@@ -4,10 +4,10 @@ SYNONYMS = {
     "customer": ["buyer", "user"],
     "customers": ["buyers", "users"],
 
-    "purchase": ["order", "buy"],
-    "purchases": ["orders", "buys"],
-    "buy": ["purchase", "order"],
-    "bought": ["purchase", "order"],
+    "purchase": ["order", "product"],
+    "purchases": ["orders", "products"],
+    "buy": ["purchase", "product"],
+    "bought": ["purchase", "product"],
 
     "revenue": ["sales", "amount"],
     "sales": ["revenue", "amount"],

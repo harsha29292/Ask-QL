@@ -12,6 +12,9 @@ initialize()
 total_precision = 0
 total_recall = 0
 
+table_hit_rate = 0
+valid_sql = 0
+
 for item in EVAL_SET:
 
     result = run_pipeline(
@@ -43,6 +46,38 @@ for item in EVAL_SET:
     total_precision += precision
     total_recall += recall
 
+    # table hit rate
+    hit = expected.issubset(predicted)
+
+    if not hit:
+
+        print("\nFAILED RETRIEVAL")
+
+        print("QUERY:")
+        print(item["query"])
+
+        print("\nSCORES:")
+
+        for score in result["scores"]:
+
+            print(
+                score["table"],
+                round(
+                    score.get(
+                     "rerank_score",
+                        score["final_score"]
+                    ),
+                    4
+                )
+            )
+
+    if hit:
+        table_hit_rate += 1
+
+    # sql validity
+    if result["validation"]["valid"]:
+        valid_sql += 1
+
     print("\n" + "=" * 60)
 
     print("QUERY:")
@@ -62,6 +97,14 @@ for item in EVAL_SET:
         f"RECALL: {recall:.2f}"
     )
 
+    print(
+        f"HIT: {hit}"
+    )
+
+    print(
+        f"SQL VALID: {result['validation']['valid']}"
+    )
+
 print("\n" + "=" * 60)
 
 print(
@@ -76,6 +119,22 @@ print(
     "AVG RECALL:",
     round(
         total_recall / len(EVAL_SET),
+        2
+    )
+)
+
+print(
+    "TABLE HIT RATE:",
+    round(
+        table_hit_rate / len(EVAL_SET),
+        2
+    )
+)
+
+print(
+    "SQL VALIDITY:",
+    round(
+        valid_sql / len(EVAL_SET),
         2
     )
 )

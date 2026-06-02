@@ -27,6 +27,18 @@ def rerank_tables(
 
             if f["table"] == table:
                 boost += 0.25
+            if f["table"]=="categories":
+                if table=="products":
+                    boost += 0.10
+            if "customer" in query_lower or "customers" in query_lower:
+
+                if table == "orders":
+                    boost += 0.10  
+
+            if "bought" in query_lower:
+
+                if table == "orders":
+                    boost += 0.10                   
 
         item["rerank_score"] = (
             score + boost

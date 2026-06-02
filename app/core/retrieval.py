@@ -50,6 +50,7 @@ from app.core.embeddings import (
 )
 
 
+
 def semantic_table_search(
     query,
     table_embeddings,

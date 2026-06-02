@@ -39,6 +39,8 @@ from app.core.sql_validator import (
 from app.core.reranker import (
     rerank_tables
 )
+
+from app.core.sql_repair import repair_sql
 # cache schema + graph (important for performance)
 _schema = None
 _graph = None
@@ -150,6 +152,23 @@ def run_pipeline(query: str):
     _schema,
     join_edges,
     _graph)
+
+
+    original_sql = sql
+
+    if not validation["valid"]:
+
+        sql = repair_sql(
+            sql,
+            validation
+                )
+
+        validation = validate_sql(
+            sql,
+            _schema,
+            join_edges,
+            _graph
+                )
       
     
     if validation["valid"]:
@@ -182,5 +201,7 @@ def run_pipeline(query: str):
         "answer": answer,
         "filters": filters,
         "rewritten_query": rewritten_query,
-        "validation": validation
+        "validation": validation,
+        "repaired": sql != original_sql,
+        "final_sql": sql
         }

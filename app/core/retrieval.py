@@ -1,3 +1,29 @@
+TABLE_ALIASES = {
+
+    "payments": [
+        "payment",
+        "paying",
+        "revenue"
+    ],
+
+    "invoices": [
+        "invoice",
+        "billing",
+        "revenue"
+    ],
+
+    "subscriptions": [
+        "subscription",
+        "plan"
+    ],
+
+    "plans": [
+        "plan",
+        "pricing"
+    ]
+}
+
+
 def extract_relevant_tables(query, graph):
     query = query.lower()
     matched = []
@@ -7,6 +33,7 @@ def extract_relevant_tables(query, graph):
             matched.append(table)
 
     return matched
+
 
 def build_table_documents(schema):
     docs = []

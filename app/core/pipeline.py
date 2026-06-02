@@ -83,6 +83,8 @@ def run_pipeline(query: str):
             )
 
     intent = parse_intent(query)
+    print("\nINTENT:")
+    print(intent)
 
     filters = extract_filters(query)
 
@@ -126,7 +128,7 @@ def run_pipeline(query: str):
     join_clause = build_join_clause(join_edges, _graph)
     select_plan = build_select_clause(
     intent,
-    tables)
+    tables,query)
 
     sql = (
     select_plan["select_clause"]

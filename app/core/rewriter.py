@@ -1,23 +1,45 @@
-SYNONYMS = {
-    "buyer": ["customer", "user"],
-    "buyers": ["customers", "users"],
-    "customer": ["buyer", "user"],
-    "customers": ["buyers", "users"],
+SYNONYMS={
 
-    "purchase": ["order", "product"],
-    "purchases": ["orders", "products"],
-    "buy": ["purchase", "product"],
-    "bought": ["purchase", "product"],
+    "paying": [
+        "payments",
+        "invoices",
+        "revenue"
+    ],
 
-    "revenue": ["sales", "amount"],
-    "sales": ["revenue", "amount"],
+    "payment": [
+        "payments",
+        "invoice"
+    ],
 
-    "product": ["item"],
-    "products": ["items"],
-    "purchaser": ["buyer", "customer", "user"],
-    "purchasers": ["buyers", "customers", "users"]
+    "payments": [
+        "invoice",
+        "revenue"
+    ],
+
+    "revenue": [
+        "payments",
+        "invoices"
+    ],
+
+    "subscription": [
+        "subscriptions",
+        "plans"
+    ],
+
+    "subscriptions": [
+        "plans"
+    ],
+
+    "invoice": [
+        "invoices",
+        "payments"
+    ],
+
+    "invoices": [
+        "payments",
+        "revenue"
+    ]
 }
-
 
 def rewrite_query(query: str):
     tokens = query.lower().split()

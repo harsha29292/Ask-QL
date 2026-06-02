@@ -1,4 +1,5 @@
 def parse_intent(query: str):
+
     query = query.lower()
 
     intent = {
@@ -8,7 +9,10 @@ def parse_intent(query: str):
         "group_by": None
     }
 
-    # aggregation detection
+    # -------------------------
+    # Aggregation Detection
+    # -------------------------
+
     if any(word in query for word in [
         "count",
         "how many",
@@ -25,11 +29,18 @@ def parse_intent(query: str):
 
     elif any(word in query for word in [
         "sum",
-        "total"
+        "total",
+        "revenue",
+        "paying",
+        "payment",
+        "payments"
     ]):
         intent["aggregation"] = "sum"
 
-    # ranking intent
+    # -------------------------
+    # Ranking
+    # -------------------------
+
     if any(word in query for word in [
         "top",
         "highest",
@@ -43,21 +54,37 @@ def parse_intent(query: str):
         "least"
     ]):
         intent["ranking"] = "asc"
-    # implicit aggregation inference
+
+    # -------------------------
+    # Fallback Aggregation
+    # -------------------------
 
     if (
         intent["ranking"] is not None
-        and intent["aggregation"] is None):
-        intent["aggregation"] = "count"    
+        and intent["aggregation"] is None
+    ):
+        intent["aggregation"] = "count"
 
-    # group by hints
+    # -------------------------
+    # Group By Detection
+    # -------------------------
+
     if "products" in query or "product" in query:
         intent["group_by"] = "products"
 
-    elif "users" in query or "customers" in query:
-        intent["group_by"] = "users"
-
-    elif "categories" in query:
+    elif "categories" in query or "category" in query:
         intent["group_by"] = "categories"
+
+    elif "customers" in query or "customer" in query:
+        intent["group_by"] = "customers"
+
+    elif "organizations" in query or "organization" in query:
+        intent["group_by"] = "organizations"
+
+    elif "plans" in query or "plan" in query:
+        intent["group_by"] = "plans"
+
+    elif "users" in query or "user" in query:
+        intent["group_by"] = "users"
 
     return intent

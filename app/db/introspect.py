@@ -5,7 +5,7 @@ import psycopg2
 # =========================
 def get_connection():
     conn = psycopg2.connect(
-        dbname="askql",
+        dbname="askql_saas",
         user="postgres",
         password="harsha123",
         host="127.0.0.1",

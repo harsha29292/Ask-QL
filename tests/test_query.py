@@ -6,7 +6,7 @@ from app.core.pipeline import (
 initialize()
 
 result = run_pipeline(
-    "organizations with most users"
+    "active customers with overdue invoices this year"
 )
 
 print("\nTABLES:")

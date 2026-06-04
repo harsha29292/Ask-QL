@@ -7,23 +7,66 @@ CATEGORY_MAP = {
     "clothing": "Clothing"
 }
 
+STATUS_FILTERS = {
 
+    "active": {
+        "table": "subscriptions",
+        "column": "subscriptions.status",
+        "value": "active"
+    },
+
+    "trial": {
+        "table": "subscriptions",
+        "column": "subscriptions.status",
+        "value": "trial"
+    },
+
+    "cancelled": {
+        "table": "subscriptions",
+        "column": "subscriptions.status",
+        "value": "cancelled"
+    },
+
+    "paid": {
+        "table": "invoices",
+        "column": "invoices.status",
+        "value": "paid"
+    },
+
+    "pending": {
+        "table": "invoices",
+        "column": "invoices.status",
+        "value": "pending"
+    },
+
+    "overdue": {
+        "table": "invoices",
+        "column": "invoices.status",
+        "value": "overdue"
+    }
+}
 def extract_filters(query: str):
     query_lower = query.lower()
 
     filters = []
 
     # category filters
-    for keyword, value in CATEGORY_MAP.items():
+    # status filters
+
+    for keyword, config in STATUS_FILTERS.items():
 
         if keyword in query_lower:
 
             filters.append({
-                "column": "categories.name",
+
+                "column": config["column"],
+
                 "operator": "=",
-                "value": value,
-                "table": "categories"
-            })
+
+                "value": config["value"],
+
+                "table": config["table"]
+                })
 
     # above 500
     matches = re.findall(

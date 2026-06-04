@@ -97,6 +97,16 @@ def run_pipeline(query: str):
             )
     TOP_K=3
     tables = [r["table"] for r in results[:TOP_K]]
+
+    #from app.core.join_pruner import (
+    #prune_tables
+#)
+
+    #tables = prune_tables(
+        #tables,
+        #intent,
+        #filters
+            #)
     print("FINAL TABLES:")
     print(tables)
 

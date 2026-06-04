@@ -1,5 +1,6 @@
 import re
 
+from datetime import datetime
 
 CATEGORY_MAP = {
     "electronics": "Electronics",
@@ -67,7 +68,41 @@ def extract_filters(query: str):
 
                 "table": config["table"]
                 })
+    current_year = datetime.now().year
 
+    if "this year" in query_lower:
+
+        filters.append({
+        "column": "invoices.issued_at",
+        "operator": ">=",
+        "value": f"{current_year}-01-01",
+        "table": "invoices"
+        })
+
+        filters.append({
+        "column": "invoices.issued_at",
+        "operator": "<=",
+        "value": f"{current_year}-12-31",
+        "table": "invoices"
+        })
+
+    elif "last year" in query_lower:
+
+        year = current_year - 1
+
+        filters.append({
+        "column": "invoices.issued_at",
+        "operator": ">=",
+        "value": f"{year}-01-01",
+        "table": "invoices"
+        })
+
+        filters.append({
+        "column": "invoices.issued_at",
+        "operator": "<=",
+        "value": f"{year}-12-31",
+        "table": "invoices"
+        })
     # above 500
     matches = re.findall(
         r"(?:above|greater than)\s+(\d+)",

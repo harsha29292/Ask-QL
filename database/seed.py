@@ -196,9 +196,10 @@ for _ in range(1000):
         INSERT INTO invoices(
             customer_id,
             amount,
-            status
+            status,
+            issued_at
         )
-        VALUES (%s,%s,%s)
+        VALUES (%s,%s,%s,%s)
         RETURNING id
         """,
         (
@@ -214,7 +215,11 @@ for _ in range(1000):
                 "paid",
                 "pending",
                 "overdue"
-            ])
+            ]),
+            fake.date_time_between(
+                start_date="-2y",
+                end_date="now"
+            )
         )
     )
 
@@ -249,8 +254,56 @@ for _ in range(800):
             )
         )
     )
-
 print("Payments seeded")
+# -------------------------
+# TEAMS
+# -------------------------
+
+team_ids = []
+
+for _ in range(30):
+
+    cur.execute(
+        """
+        INSERT INTO teams(
+            organization_id,
+            name
+        )
+        VALUES (%s,%s)
+        RETURNING id
+        """,
+        (
+            random.choice(
+                organization_ids
+            ),
+            fake.word().title() + " Team"
+        )
+    )
+
+    team_ids.append(
+        cur.fetchone()[0]
+    )
+
+print("Teams seeded")
+# TEAM MEMBERS
+
+for user_id in user_ids:
+
+    cur.execute(
+        """
+        INSERT INTO team_members(
+            team_id,
+            user_id
+        )
+        VALUES (%s, %s)
+        """,
+        (
+            random.choice(team_ids),
+            user_id
+        )
+    )   
+print("Team members seeded")
+
 
 conn.commit()
 

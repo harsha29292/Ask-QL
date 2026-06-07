@@ -177,5 +177,7 @@ def build_select_clause(
             group_by,
 
         "order_by":
-            order_by
+            order_by,
+        "limit":
+            intent["limit"]
     }

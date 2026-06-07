@@ -1,24 +1,42 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+from app.core.pipeline import (
+    initialize,
+    run_pipeline
+)
+
+app = FastAPI(
+    title="AskQL"
+)
+
+initialize()
 
 
-from app.core.pipeline import initialize, run_pipeline
+class QueryRequest(BaseModel):
+    query: str
 
 
-app=FastAPI()
+@app.get("/health")
+def health():
 
-initialize()   
+    return {
+        "status": "healthy"
+    }
 
 
 @app.post("/query")
+def query(
+    request: QueryRequest
+):
 
-def query(payload: dict):
-
-    result=run_pipeline(
-        payload["query"]
+    result = run_pipeline(
+        request.query
     )
 
-    return{
-        "query": payload["query"],
+    return {
+        "query": request.query,
+        "tables": result["tables"],
         "sql": result["sql"],
         "answer": result["answer"]
     }

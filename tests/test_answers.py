@@ -6,9 +6,7 @@ from app.core.pipeline import (
 initialize()
 
 queries = [
-    "top products bought by users",
-    "lowest selling categories",
-    "average order value"
+    "top subscription plans"
 ]
 
 for query in queries:

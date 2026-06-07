@@ -107,6 +107,16 @@ def run_pipeline(query: str):
         #intent,
         #filters
             #)
+
+    # MVP heuristics
+
+    if intent["group_by"] == "plans":
+
+        tables = [
+            t
+            for t in tables
+            if t in ["plans", "subscriptions"]
+            ]        
     print("FINAL TABLES:")
     print(tables)
 
@@ -158,7 +168,17 @@ def run_pipeline(query: str):
         sql += (
             "\nORDER BY "
             + select_plan["order_by"]
-                        )
+        )
+
+    if select_plan["limit"]:
+
+        sql += (
+            "\nLIMIT "
+            + str(
+            select_plan["limit"]
+            )
+        )       
+                        
     validation = validate_sql(
     sql,
     _schema,

@@ -1,3 +1,6 @@
+
+
+
 def parse_intent(query: str):
 
     query = query.lower()
@@ -6,7 +9,8 @@ def parse_intent(query: str):
         "aggregation": None,
         "ranking": None,
         "filters": [],
-        "group_by": None
+        "group_by": None,
+        "limit":None
     }
 
     # -------------------------
@@ -86,5 +90,21 @@ def parse_intent(query: str):
 
     elif "users" in query or "user" in query:
         intent["group_by"] = "users"
+    import re
+
+    match = re.search(
+    r"(?:top|best)\s+(\d+)",
+    query
+    )
+
+    if match:
+        intent["limit"] = int(
+        match.group(1)
+        )
+    if (
+    intent["ranking"] is not None
+    and intent["limit"] is None
+    ):
+        intent["limit"] = 10           
 
     return intent

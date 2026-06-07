@@ -1,15 +1,18 @@
 import psycopg2
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 # =========================
 # DB CONNECTION
 # =========================
 def get_connection():
     conn = psycopg2.connect(
-        dbname="askql_saas",
-        user="postgres",
-        password="harsha123",
-        host="127.0.0.1",
-        port="5432"
+    host=os.getenv("DB_HOST"),
+    port=os.getenv("DB_PORT", "5432"),
+    dbname=os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD")
     )
     conn.autocommit = True
 

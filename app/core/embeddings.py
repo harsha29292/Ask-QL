@@ -2,7 +2,7 @@ import requests
 import numpy as np
 
 
-OLLAMA_URL = "http://127.0.0.1:11434/api/embeddings"
+OLLAMA_URL = "http://host.docker.internal:11434/api/embed"
 MODEL = "nomic-embed-text"
 
 
@@ -11,16 +11,33 @@ def get_embedding(text: str):
         OLLAMA_URL,
         json={
             "model": MODEL,
-            "prompt": text
-        }
+            "input": text
+        },
+        timeout=30
     )
+
+    response.raise_for_status()
 
     data = response.json()
 
-    return np.array(data["embedding"])
+    # Ollama /api/embed format
+    if "embeddings" in data:
+        return np.array(data["embeddings"][0])
+
+    # Fallback for older versions
+    if "embedding" in data:
+        return np.array(data["embedding"])
+
+    raise ValueError(
+        f"Unexpected Ollama response: {data}"
+    )
+
 
 def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    return np.dot(a, b) / (
+        np.linalg.norm(a) * np.linalg.norm(b)
+    )
+
 
 def get_intent_bonus(query, table_name):
     query = query.lower()
